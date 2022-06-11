@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class UpdateProfileController extends GetxController {
   TextEditingController nipC = TextEditingController();
@@ -10,6 +13,8 @@ class UpdateProfileController extends GetxController {
   RxBool isLoading = false.obs;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final storage = FirebaseStorage.instance;
+
   final ImagePicker picker = ImagePicker();
   XFile? image;
 
@@ -31,9 +36,22 @@ class UpdateProfileController extends GetxController {
         emailC.text.isNotEmpty) {
       isLoading.value = true;
       try {
-        await firestore.collection("pegawai").doc(uid).update({
-          "name": nameC.text,
-        });
+        Map<String, dynamic> data = {
+          'nip': nipC.text,
+        };
+        if (image != null) {
+          //proses upload image ke storage
+          File file = File(image!.path);
+          String ext = image!.name.split(".").last;
+          await storage.ref("$uid/profile.$ext").putFile(file);
+          String urlImage =
+              await storage.ref("$uid/profile.$ext").getDownloadURL();
+
+          data.addAll({
+            "profile": urlImage,
+          });
+        }
+        await firestore.collection("pegawai").doc(uid).update(data);
         Get.back();
         Get.snackbar(
           "Berhasil",
