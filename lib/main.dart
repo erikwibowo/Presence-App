@@ -26,7 +26,7 @@ void main() async {
           }
           return GetMaterialApp(
             title: "Application",
-            initialRoute: snapshot.data != null ? Routes.HOME : Routes.LOGIN,
+            initialRoute: snapshot.data != null ? Routes.MAIN : Routes.LOGIN,
             getPages: AppPages.routes,
             debugShowCheckedModeBanner: false,
           );

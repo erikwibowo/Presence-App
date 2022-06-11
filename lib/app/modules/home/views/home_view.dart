@@ -1,24 +1,22 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:presence_app/app/routes/app_pages.dart';
 
 import '../controllers/home_controller.dart';
 
 class HomeView extends GetView<HomeController> {
+  final controller = Get.put(HomeController());
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('HomeView'),
+        title: Text('HOME'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () => Get.toNamed(Routes.PROFILE),
-          )
+          // IconButton(
+          //   icon: Icon(Icons.person),
+          //   onPressed: () => Get.toNamed(Routes.PROFILE),
+          // )
         ],
       ),
       body: Center(
@@ -27,21 +25,6 @@ class HomeView extends GetView<HomeController> {
           style: TextStyle(fontSize: 20),
         ),
       ),
-      floatingActionButton: Obx(() => FloatingActionButton(
-            onPressed: () async {
-              if (controller.isLoading.isFalse) {
-                controller.isLoading.value = true;
-                await FirebaseAuth.instance.signOut();
-                Get.offAllNamed(Routes.LOGIN);
-                controller.isLoading.value = false;
-              }
-            },
-            child: controller.isLoading.isFalse
-                ? Icon(Icons.logout)
-                : Center(
-                    child: CircularProgressIndicator(),
-                  ),
-          )),
     );
   }
 }
