@@ -20,13 +20,13 @@ class UpdateProfileController extends GetxController {
 
   void pickImage() async {
     image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      print(image!.name);
-      print(image!.name.split(".").last);
-      print(image!.path);
-    } else {
-      print(image);
-    }
+    // if (image != null) {
+    //   print(image!.name);
+    //   print(image!.name.split(".").last);
+    //   print(image!.path);
+    // } else {
+    //   print(image);
+    // }
     update();
   }
 
@@ -37,7 +37,7 @@ class UpdateProfileController extends GetxController {
       isLoading.value = true;
       try {
         Map<String, dynamic> data = {
-          'nip': nipC.text,
+          'name': nameC.text,
         };
         if (image != null) {
           //proses upload image ke storage
@@ -52,6 +52,7 @@ class UpdateProfileController extends GetxController {
           });
         }
         await firestore.collection("pegawai").doc(uid).update(data);
+        image = null;
         Get.back();
         Get.snackbar(
           "Berhasil",
@@ -91,6 +92,34 @@ class UpdateProfileController extends GetxController {
         snackPosition: SnackPosition.TOP,
         duration: Duration(seconds: 2),
       );
+    }
+  }
+
+  void deleteProfile(String uid) async {
+    try {
+      await firestore.collection("pegawai").doc(uid).update({
+        "profile": FieldValue.delete(),
+      });
+      Get.back();
+      Get.snackbar(
+        "Berhasil",
+        "Berhasil menghapus profile",
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        duration: Duration(seconds: 2),
+      );
+    } catch (e) {
+      Get.snackbar(
+        "Terjadi Kesalahan",
+        "Gagal menghapus profile picture. ${e}",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.TOP,
+        duration: Duration(seconds: 2),
+      );
+    } finally {
+      update();
     }
   }
 }
