@@ -13,6 +13,7 @@ class ForgotPasswordController extends GetxController {
       try {
         isLoading.value = true;
         await auth.sendPasswordResetEmail(email: emailC.text);
+        Get.back();
         Get.snackbar("Berhasil",
             "Kami telah mengirimkan email untuk mereset password anda. Silahkan oeriksa inbox/spam email anda",
             snackPosition: SnackPosition.TOP,
@@ -21,7 +22,6 @@ class ForgotPasswordController extends GetxController {
             borderRadius: 10,
             margin: EdgeInsets.all(10),
             snackStyle: SnackStyle.FLOATING);
-        // Get.back();
       } on FirebaseAuthException catch (e) {
         // print(e.code);
         if (e.code == 'user-not-found') {

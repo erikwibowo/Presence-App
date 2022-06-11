@@ -20,6 +20,7 @@ class UpdateProfileController extends GetxController {
         await firestore.collection("pegawai").doc(uid).update({
           "name": nameC.text,
         });
+        Get.back();
         Get.snackbar(
           "Berhasil",
           "Berhasil mengupdate profile",
