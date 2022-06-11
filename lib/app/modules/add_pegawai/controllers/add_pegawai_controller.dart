@@ -8,11 +8,15 @@ class AddPegawaiController extends GetxController {
   TextEditingController nameC = TextEditingController();
   TextEditingController emailC = TextEditingController();
   TextEditingController passwordAdminC = TextEditingController();
+  RxBool isLoading = false.obs;
+  RxBool isLoadingAddPegawai = false.obs;
 
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firesotre = FirebaseFirestore.instance;
 
   Future<void> proses() async {
+    isLoading.value = true;
+    isLoadingAddPegawai.value = true;
     if (passwordAdminC.text.isNotEmpty) {
       try {
         String emailAdmin = auth.currentUser!.email!;
@@ -111,17 +115,24 @@ class AddPegawaiController extends GetxController {
           margin: EdgeInsets.all(10),
           snackStyle: SnackStyle.FLOATING);
     }
+    isLoading.value = false;
+    isLoadingAddPegawai.value = false;
   }
 
-  void addPegawai() async {
+  Future<void> addPegawai() async {
     if (nipC.text.isNotEmpty ||
         nameC.text.isNotEmpty ||
         emailC.text.isNotEmpty) {
       Get.defaultDialog(
+        titlePadding: EdgeInsets.only(top: 20),
+        contentPadding: EdgeInsets.all(20),
         title: "Validasi Admin",
         content: Column(
           children: [
             Text("Ketikkan password admin untuk melanjutkan"),
+            SizedBox(
+              height: 10,
+            ),
             TextField(
               obscureText: true,
               autocorrect: false,
@@ -138,12 +149,15 @@ class AddPegawaiController extends GetxController {
             onPressed: () => Get.back(),
             child: Text("CANCEL"),
           ),
-          ElevatedButton(
-            onPressed: () async {
-              await proses();
-            },
-            child: Text("CONTINUE"),
-          ),
+          Obx(() => ElevatedButton(
+                onPressed: () async {
+                  if (isLoadingAddPegawai.isFalse) {
+                    await proses();
+                  }
+                },
+                child: Text(
+                    isLoadingAddPegawai.isFalse ? "CONTINUE" : "LOADING..."),
+              )),
         ],
       );
     } else {

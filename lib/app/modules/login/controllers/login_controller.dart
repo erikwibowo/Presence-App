@@ -4,12 +4,14 @@ import 'package:get/get.dart';
 import 'package:presence_app/app/routes/app_pages.dart';
 
 class LoginController extends GetxController {
+  RxBool isLoading = false.obs;
   TextEditingController emailC = TextEditingController();
   TextEditingController passC = TextEditingController();
 
   FirebaseAuth auth = FirebaseAuth.instance;
 
-  void login() async {
+  Future<void> login() async {
+    isLoading.value = true;
     if (emailC.text.isNotEmpty && passC.text.isNotEmpty) {
       try {
         UserCredential userCredential = await auth.signInWithEmailAndPassword(
@@ -101,5 +103,6 @@ class LoginController extends GetxController {
           margin: EdgeInsets.all(10),
           snackStyle: SnackStyle.FLOATING);
     }
+    isLoading.value = false;
   }
 }
