@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -14,10 +15,23 @@ class HomeView extends GetView<HomeController> {
         title: Text('HomeView'),
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: Icon(Icons.person),
-            onPressed: () => Get.toNamed(Routes.ADD_PEGAWAI),
-          ),
+          StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              stream: controller.streamRole(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SizedBox();
+                }
+                String role = snapshot.data!.data()!["role"];
+                if (role == "admin") {
+                  // ini admin
+                  return IconButton(
+                    icon: Icon(Icons.person),
+                    onPressed: () => Get.toNamed(Routes.ADD_PEGAWAI),
+                  );
+                } else {
+                  return SizedBox();
+                }
+              }),
         ],
       ),
       body: Center(
