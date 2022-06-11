@@ -7,23 +7,28 @@ class AddPegawaiController extends GetxController {
   TextEditingController nipC = TextEditingController();
   TextEditingController nameC = TextEditingController();
   TextEditingController emailC = TextEditingController();
+  TextEditingController passwordAdminC = TextEditingController();
 
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firesotre = FirebaseFirestore.instance;
 
-  void addPegawai() async {
-    if (nipC.text.isNotEmpty ||
-        nameC.text.isNotEmpty ||
-        emailC.text.isNotEmpty) {
+  Future<void> proses() async {
+    if (passwordAdminC.text.isNotEmpty) {
       try {
-        UserCredential userCredential =
+        String emailAdmin = auth.currentUser!.email!;
+        UserCredential userCredentialAdmin =
+            await auth.signInWithEmailAndPassword(
+          email: emailAdmin,
+          password: passwordAdminC.text,
+        );
+        UserCredential pegawaiCredential =
             await auth.createUserWithEmailAndPassword(
           email: emailC.text,
           password: "password",
         );
 
-        if (userCredential.user != null) {
-          String uid = userCredential.user!.uid;
+        if (pegawaiCredential.user != null) {
+          String uid = pegawaiCredential.user!.uid;
           await firesotre.collection("pegawai").doc(uid).set({
             "nip": nipC.text,
             "name": nameC.text,
@@ -31,10 +36,25 @@ class AddPegawaiController extends GetxController {
             "uid": uid,
             "createdAt": DateTime.now().toIso8601String(),
           });
-          await userCredential.user!.sendEmailVerification();
-        }
+          await pegawaiCredential.user!.sendEmailVerification();
+          await auth.signOut();
 
-        print(userCredential);
+          UserCredential userCredentialAdmin =
+              await auth.signInWithEmailAndPassword(
+            email: emailAdmin,
+            password: passwordAdminC.text,
+          );
+
+          Get.back();
+          Get.back();
+          Get.snackbar("Berhasil", "Pegawai berhasil ditambahkan",
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.green,
+              colorText: Colors.white,
+              borderRadius: 10,
+              margin: EdgeInsets.all(10),
+              snackStyle: SnackStyle.FLOATING);
+        }
       } on FirebaseAuthException catch (e) {
         print(e.code);
         if (e.code == 'weak-password') {
@@ -55,6 +75,22 @@ class AddPegawaiController extends GetxController {
               borderRadius: 10,
               margin: EdgeInsets.all(10),
               snackStyle: SnackStyle.FLOATING);
+        } else if (e.code == 'wrong-password') {
+          Get.snackbar("Terjadi Kesalahan", "Password yang anda masukkan salah",
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              borderRadius: 10,
+              margin: EdgeInsets.all(10),
+              snackStyle: SnackStyle.FLOATING);
+        } else {
+          Get.snackbar("Terjadi Kesalahan", "${e.code}",
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              borderRadius: 10,
+              margin: EdgeInsets.all(10),
+              snackStyle: SnackStyle.FLOATING);
         }
       } catch (e) {
         Get.snackbar("Terjadi Kesalahan",
@@ -66,6 +102,50 @@ class AddPegawaiController extends GetxController {
             margin: EdgeInsets.all(10),
             snackStyle: SnackStyle.FLOATING);
       }
+    } else {
+      Get.snackbar("Terjadi Kesalahan", "Password tidak boleh kosong",
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          borderRadius: 10,
+          margin: EdgeInsets.all(10),
+          snackStyle: SnackStyle.FLOATING);
+    }
+  }
+
+  void addPegawai() async {
+    if (nipC.text.isNotEmpty ||
+        nameC.text.isNotEmpty ||
+        emailC.text.isNotEmpty) {
+      Get.defaultDialog(
+        title: "Validasi Admin",
+        content: Column(
+          children: [
+            Text("Ketikkan password admin untuk melanjutkan"),
+            TextField(
+              obscureText: true,
+              autocorrect: false,
+              controller: passwordAdminC,
+              decoration: InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          OutlinedButton(
+            onPressed: () => Get.back(),
+            child: Text("CANCEL"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await proses();
+            },
+            child: Text("CONTINUE"),
+          ),
+        ],
+      );
     } else {
       Get.snackbar("Terjadi Kesalahan", "NIP, Name, Email tidak boleh kosong",
           snackPosition: SnackPosition.TOP,
