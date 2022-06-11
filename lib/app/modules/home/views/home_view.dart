@@ -15,23 +15,10 @@ class HomeView extends GetView<HomeController> {
         title: Text('HomeView'),
         centerTitle: true,
         actions: [
-          StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-              stream: controller.streamRole(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return SizedBox();
-                }
-                String role = snapshot.data!.data()!["role"];
-                if (role == "admin") {
-                  // ini admin
-                  return IconButton(
-                    icon: Icon(Icons.person),
-                    onPressed: () => Get.toNamed(Routes.ADD_PEGAWAI),
-                  );
-                } else {
-                  return SizedBox();
-                }
-              }),
+          IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () => Get.toNamed(Routes.PROFILE),
+          )
         ],
       ),
       body: Center(
@@ -44,7 +31,7 @@ class HomeView extends GetView<HomeController> {
             onPressed: () async {
               if (controller.isLoading.isFalse) {
                 controller.isLoading.value = true;
-                FirebaseAuth.instance.signOut();
+                await FirebaseAuth.instance.signOut();
                 Get.offAllNamed(Routes.LOGIN);
                 controller.isLoading.value = false;
               }
