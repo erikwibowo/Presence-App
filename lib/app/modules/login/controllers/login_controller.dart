@@ -22,10 +22,41 @@ class LoginController extends GetxController {
             Get.offAllNamed(Routes.HOME);
           } else {
             Get.defaultDialog(
-              title: "Verifikasi Email",
-              middleText:
-                  "Email anda belum terverifikasi. Silahkan verifikasi email anda terlebih dahulu",
-            );
+                title: "Verifikasi Email",
+                middleText:
+                    "Email anda belum terverifikasi. Silahkan verifikasi email anda terlebih dahulu",
+                actions: [
+                  OutlinedButton(
+                    onPressed: () => Get.back(),
+                    child: Text("CANCEL"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      try {
+                        await userCredential.user!.sendEmailVerification();
+                        Get.back();
+                        Get.snackbar("Berhasil",
+                            "Email verifikasi berhasil dikirim. Silahkan periksa email anda",
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.green,
+                            colorText: Colors.white,
+                            borderRadius: 10,
+                            margin: EdgeInsets.all(10),
+                            snackStyle: SnackStyle.FLOATING);
+                      } catch (e) {
+                        Get.snackbar("Terjadi Kesalahan",
+                            "Email verifikasi gagal dikirim. Hubungi admin/customer service",
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            borderRadius: 10,
+                            margin: EdgeInsets.all(10),
+                            snackStyle: SnackStyle.FLOATING);
+                      }
+                    },
+                    child: Text("KIRIM ULANG"),
+                  ),
+                ]);
           }
         }
       } on FirebaseAuthException catch (e) {
