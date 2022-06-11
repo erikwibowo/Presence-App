@@ -83,6 +83,14 @@ class LoginController extends GetxController {
               borderRadius: 10,
               margin: EdgeInsets.all(10),
               snackStyle: SnackStyle.FLOATING);
+        } else {
+          Get.snackbar("Terjadi Kesalahan", "${e.message}",
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+              borderRadius: 10,
+              margin: EdgeInsets.all(10),
+              snackStyle: SnackStyle.FLOATING);
         }
       } catch (e) {
         Get.snackbar(
